@@ -36,7 +36,7 @@ There are several projects that do all or some of this semi-automatically
           ```
           pipenv run tracboat export --format json --out-file ~/tmp/nublado-trac-export.json --trac-uri=https://www.nublado.org/xmlrpc --no-ssl-verify
           ```
-        * This mostly works (it took about 20 min to go through everything), but there was a problem with retrieving the attachments
+        * This mostly works (it took about 30 min to go through everything), but there was a problem with retrieving the attachments
         * First tried to fix this by using python 2.7 interpreter in the pipenv, but that failed to compile some dependency, so I have abandoned that track
     * 2019-10-19 evening: 
         * Going back to python 3, I quickly found a fix to the attachment problem
@@ -61,7 +61,8 @@ There are several projects that do all or some of this semi-automatically
 		  So that works for text attachments at least - I can't find any binary attachments to test on
     * Now that it is working, I am running it again on the entire database
         * Started at 20:42, Finished at 21:13 => 31 minutes run time
-        * I neglected to decode the bytestream before writing to json, so it ended up getting converted int
+        * I neglected to decode the bytestream before writing to json, so it ended up getting converted into strange `bson` ascii encoding (something to do with MongoDB)
+        * 
 ## Log of testing migrate-trac-issues-to-github ##
   * Following the documentation, I have set my GitHub credentials with `git config` 
       * I generated a token ([Settings/Developer settings/Personal access tokens](https://github.com/settings/tokens)), so I didn't have to use my actual password
@@ -90,4 +91,58 @@ There are several projects that do all or some of this semi-automatically
 		fails with
 		```
         SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1056)
+		```
+      * Luckily, I have `tracboat` to compare with. It turns out, we need to add the argument `context=ssl._create_unverified_context()` to `xmlrpclib.ServerProxy()`
+      * Now that is fixed, I get a new error:
+		```
+		ProtocolError: <ProtocolError for www.nublado.org//login/rpc: 401 Unauthorized>
+		```
+      * Again, from `tracboat` they were using a different API url: <https://www.nublado.org/xmlrpc>, and when I switch to that it works
+      * So I have got a few tickets:
+		```python
+        get_all_tickets = xmlrpclib.MultiCall(m.trac)
+        get_all_tickets.ticket.get(430)
+        get_all_tickets.ticket.get(111)
+        list(get_all_tickets())
+		```
+		This works, but it doesn't get the attachments:
+		```
+        [[430,
+          <DateTime '20191008T12:10:38' at 0x10a3aba90>,
+          <DateTime '20191008T12:10:38' at 0x10a3ab6d8>,
+          {'status': 'new',
+           'changetime': <DateTime '20191008T12:10:38' at 0x10a3abbe0>,
+           '_ts': '1570536638433514',
+           'description': 'The abundances command includes the keywords "no grains" and "no qheat" to modify the implicit grains that are included in certain mixtures.  The "no qheat" option does not work on c17 but works in c13 and the trunk.  A simple example is attached.  ',
+           'reporter': 'gary',
+           'cc': '',
+           'resolution': '',
+           'time': <DateTime '20191008T12:10:38' at 0x10a3ab908>,
+           'component': 'grains',
+           'summary': 'abundances ISM no qheat does not work on c17',
+           'priority': 'blocker',
+           'keywords': '',
+           'version': 'c17_branch',
+           'milestone': 'c17.02',
+           'owner': 'peter',
+           'type': 'defect - etc'}],
+         [111,
+          <DateTime '20091117T02:35:40' at 0x10a3abef0>,
+          <DateTime '20190204T12:10:21' at 0x10a3ab668>,
+          {'status': 'accepted',
+           'changetime': <DateTime '20190204T12:10:21' at 0x10a3ab940>,
+           '_ts': '1549282221449479',
+           'description': 'The following model fails on trunk r3594 after failing to find an initial solution.  We appear to be at a temperature instability, and a very slightly less dense model (13.5575) finishes fine.  This model produces negative ion population errors in NI (and eventually all stages of nitrogen) but these are most likely unrelated to the root problems. \n{{{\nblackbody 1.16e7\nluminosity 37\nradius 10.48\nhden 13.5578\nstop zone 1\n}}}\n\n',
+           'reporter': 'rporter',
+           'cc': '',
+           'resolution': '',
+           'time': <DateTime '20091117T02:35:40' at 0x10a3ab0b8>,
+           'component': 'thermal convergence',
+           'summary': 'temperature instability',
+           'priority': 'major',
+           'keywords': '',
+           'version': 'trunk',
+           'milestone': 'c19 branch',
+           'owner': 'peter',
+           'type': 'defect - FPE'}]]
 		```
