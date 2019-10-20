@@ -7,7 +7,7 @@ Trial run for importing the nublado.org Trac tickets as GitHub issues.
   * The plan has two stages 
       1. To use the XML-RPC API of the Trac site to get all the data out of the ticket system
       2. To use the Github API to reconstruct the tickets as Github Issues
-          * Map Types to Tags
+          * Map Components, Types, Priorities to Tags
           * Map Milestones to Milestones
           * Map Trac users to github users (anyone without a github username becomes a tag)
           * Carry over attachments 
@@ -42,6 +42,7 @@ There are several projects that do all or some of this semi-automatically
         * Going back to python 3, I quickly found a fix to the attachment problem
         * To avoid having to grab the entire database by hand, I am testing functions by hand in a REPL.  For instance:
           ```python
+		  # Import tracboat/src/tracboat/trac.py
           import trac
           trac_uri="https://www.nublado.org/xmlrpc"
           source = trac.connect(
@@ -50,8 +51,11 @@ There are several projects that do all or some of this semi-automatically
               use_datetime=True,
               ssl_verify=False
           )
+		  # Get a list of all the ticket IDs 
           ticket_ids = source.ticket.query("max=0&order=id")
+		  # Get the attachments from the latest ticket that has one
           att = trac.ticket_get_attachments(source, 430)
+		  # This returns a utf-8 bytes stream - decode it to string for printing
           print(att["ism.in"]["data"].decode())
           ```
 
