@@ -71,23 +71,23 @@ There are several projects that do all or some of this semi-automatically
       * Slowly going through, fixing for python 3
       * Testing getting of tickets
 		```python
-m = Migrator(
-    "https://www.nublado.org",
-    github_username=github_username,
-    github_password=github_password,
-    github_project="cloudy-astrophysics/bug-tracker-migration-test",
-    github_api_url="https://api.github.com",
-    username_map={},
-    config={"labels": {}}
-m.load_github()
-get_all_tickets = xmlrpclib.MultiCall(m.trac)
-)
+        m = Migrator(
+            "https://www.nublado.org",
+            github_username=github_username,
+            github_password=github_password,
+            github_project="cloudy-astrophysics/bug-tracker-migration-test",
+            github_api_url="https://api.github.com",
+            username_map={},
+            config={"labels": {}}
+        m.load_github()
+        get_all_tickets = xmlrpclib.MultiCall(m.trac)
+        )
 		```
 		So far, so good, but then:
 		```python
-tickets = m.trac.ticket.query("max=0&order=id")
+        tickets = m.trac.ticket.query("max=0&order=id")
 		```
 		fails with
 		```
-SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1056)
+        SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1056)
 		```
