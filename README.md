@@ -58,5 +58,36 @@ There are several projects that do all or some of this semi-automatically
 		  # This returns a utf-8 bytes stream - decode it to string for printing
           print(att["ism.in"]["data"].decode())
           ```
-
+		  So that works for text attachments at least - I can't find any binary attachments to test on
+    * Now that it is working, I am running it again on the entire database
+        * Started at 20:42, Finished at 21:13 => 31 minutes run time
+        * I neglected to decode the bytestream before writing to json, so it ended up getting converted int
 ## Log of testing migrate-trac-issues-to-github ##
+  * Following the documentation, I have set my GitHub credentials with `git config` 
+      * I generated a token ([Settings/Developer settings/Personal access tokens](https://github.com/settings/tokens)), so I didn't have to use my actual password
+      * Except it needed to be `github.user`, not `github.username`
+  * Says it needs Python 2.7, but we will see if it is easy to fix for Python 3
+  * It has one monolithic program `migrate.py`, but I am going to try and test the constituent parts
+      * Slowly going through, fixing for python 3
+      * Testing getting of tickets
+		```python
+m = Migrator(
+    "https://www.nublado.org",
+    github_username=github_username,
+    github_password=github_password,
+    github_project="cloudy-astrophysics/bug-tracker-migration-test",
+    github_api_url="https://api.github.com",
+    username_map={},
+    config={"labels": {}}
+m.load_github()
+get_all_tickets = xmlrpclib.MultiCall(m.trac)
+)
+		```
+		So far, so good, but then:
+		```python
+tickets = m.trac.ticket.query("max=0&order=id")
+		```
+		fails with
+		```
+SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1056)
+		```
