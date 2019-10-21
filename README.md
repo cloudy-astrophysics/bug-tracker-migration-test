@@ -156,11 +156,11 @@ There are several projects that do all or some of this semi-automatically
         2. Tracboat uses a more straightforward method of making several separate xmlrpc api calls for each ticket, whereas `migrate.py` has a fancier method of queuing up all the queries with `xmlrpc.client.MultiCall()` and then just doing one network call for everything. This should be more efficient, but there are aspects of it that I still don't understand.
         3. We don't really need all of the changelog, but we *do* want the comments. Sometimes the comments have an empty `oldvalue`, which makes sense, but sometimes the `oldvalue` is a number, which I don't understand. **Aha, they do get the comments, see below**
     * Getting the comments with `Migrator.get_trac_comments()`
-	  ```python
-	  comments = m.get_trac_comments(111)
-	  ```
-	  yields
-	  ```
+      ```python
+      comments = m.get_trac_comments(111)
+      ```
+      yields
+      ```
       {'20091117T22:51:41': ['@rjrw changed description from:\n\n> The following model fails on trunk r3594 after failing to find an initial solution.  We appear to be at a temperature instability, and a very slightly less dense model (13.5575) finishes fine.  This model produces negative ion population errors in NI (and eventually all stages of nitrogen) but these are most likely unrelated to the root problems. \n> \n> blackbody 1.16e7\n> \n> luminosity 37\n> \n> radius 10.48\n> \n> hden 13.5578\n> \n> stop zone 1\n> \n> \n> \n\nto:\n\n> The following model fails on trunk r3594 after failing to find an initial solution.  We appear to be at a temperature instability, and a very slightly less dense model (13.5575) finishes fine.  This model produces negative ion population errors in NI (and eventually all stages of nitrogen) but these are most likely unrelated to the root problems. \n> \n> ```\n> blackbody 1.16e7\n> luminosity 37\n> radius 10.48\n> hden 13.5578\n> stop zone 1\n> ```\n> \n> \n\n'],
        '20091119T08:35:05': ['@rjrw changed attachment from "" to "conv_change"',
         '@rjrw commented:\n\n> Updated patch to deal with underflow problems on 64bit\n\n'],
@@ -173,8 +173,36 @@ There are several projects that do all or some of this semi-automatically
        '20190204T11:54:34': ['@peter changed milestone from "C13 branch" to "C19_branch"'],
        '20190204T12:10:21': ['@peter commented:\n\n> Milestone renamed\n\n',
         '@peter changed milestone from "C19_branch" to "c19 branch"']}
-	  ```
+      ```
 
+### Stage 1a Mapping of usernames ###
+  * This is specified in a YAML config file, like this:
+    ```yaml
+    users:
+      'gary / robin': CloudyLex
+      gary: CloudyLex
+      rjrw: rjrw
+      will: will-henney
+      mchatzikos: mchatzikos
+      fguzman: fguzmanful
+      # nicholas: MISSING
+      # wangye0206: MISSING
+      # dquan: MISSING
+      # matt: MISSING
+      # peter: MISSING
+      # 'Peter, van, Hoof, <p.vanhoof@oma.be>': MISSING
+      # rporter: MISSING
+      # Ryan: MISSING
+      # 'rporter@pa.uky.edu' MISSING
+      # nobody: MISSING
+      # somebody: MISSING
+      # anonymous: MISSING
+    ```
+  * Most of the missing users can probably be ignored, but it might be worthwhile contacting the following:
+      * Nick Abel
+  * It looks like all the assignees will get notifications about their Issues when they are imported to GitHub, so I have made a separate config file `map-all-to-will.yaml` that maps all the Trac users to me (will-henney). I will use this during the testing stages, and then swap in the real mapping for the final migration. 
+      * *Update*: Now that I have checked more carefully, it seems that there are no notifications, which is good
+      * It is using the "new" issue import API, described at <https://gist.github.com/jonmagic/5282384165e0f86ef105>
 
 ### Stage 2 – create issues on github ###
   * This is handled by `Migrator.migrate_tickets()`
@@ -188,5 +216,46 @@ There are several projects that do all or some of this semi-automatically
   * The second half finally engages with the github API
       1. Checks to see if title is already in the list of github issues, and if so edits it. *They recommend commenting this code out if running the script multiple times, and in fact we don't need this at all.* 
       2. Otherwise, makes a new issue on github using `Migrator.import_issue()`
-  * Structure of `Migrator.import_issue()`
-  
+  * 2019-10-20 – Add functionality to `migrate.py`
+      * Specify a ticket range, so we don't do all 431 of them
+      * Option for dry run, so we do everything *except* actually talk to GitHub
+  * Help message for my new version
+    ```
+    $ ../migrate-trac-issues-to-github/migrate.py --help
+    usage: migrate.py [-h] [--trac-username TRAC_USERNAME] [--trac-url TRAC_URL]
+                      [--github-username GITHUB_USERNAME]
+                      [--github-api-url GITHUB_API_URL]
+                      [--github-project GITHUB_PROJECT]
+                      [--username-map USERNAME_MAP]
+                      [--trac-hub-config TRAC_HUB_CONFIG] [--ssl-verify]
+                      [--dry-run] [--ticket-range TICKET_RANGE TICKET_RANGE]
+     
+    optional arguments:
+      -h, --help            show this help message and exit
+      --trac-username TRAC_USERNAME
+                            Trac username (default: will)
+      --trac-url TRAC_URL   Trac base URL (`USERNAME` and `PASSWORD` will be
+                            expanded)
+      --github-username GITHUB_USERNAME
+                            Github username (default: will-henney)
+      --github-api-url GITHUB_API_URL
+                            Github API URL (default: https://api.github.com)
+      --github-project GITHUB_PROJECT
+                            Github Project: e.g. username/project
+      --username-map USERNAME_MAP
+                            File containing tab-separated Trac:Github username
+                            mappings
+      --trac-hub-config TRAC_HUB_CONFIG
+                            YAML configuration file in trac-hub style
+      --ssl-verify          Do SSL properly
+      --dry-run             Do not actually import any issues into GitHub
+      --ticket-range TICKET_RANGE TICKET_RANGE
+                            First and last ticket IDs to process
+    ```
+	The last three options are ones that I have added. 
+  * Trying it out
+    ```
+    ../migrate-trac-issues-to-github/migrate.py --trac-url=https://www.nublado.org --dry-run --ticket-range 1 10
+    ```
+  * That seemed to work, so I ran it without the `--dry-run`. This has put the first 10 tickets into the repo. Most of them were opened by Ryan. Note that we still do not have the attachments. That is what I will try and fix next. 
+
