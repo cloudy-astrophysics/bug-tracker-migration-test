@@ -12,11 +12,11 @@ users:
   # wangye0206: MISSING
   # dquan: MISSING
   # matt: MISSING
-  # peter: MISSING
-  # 'Peter, van, Hoof, <p.vanhoof@oma.be>': MISSING
-  # rporter: MISSING
-  # Ryan: MISSING
-  # 'rporter@pa.uky.edu' MISSING
+  peter: peter-van-hoof-noaccount
+  'Peter, van, Hoof, <p.vanhoof@oma.be>': peter-van-hoof-noaccount
+  rporter: ryan-porter-noaccount
+  Ryan: ryan-porter-noaccount
+  'rporter@pa.uky.edu': ryan-porter-noaccount
   # nobody: MISSING
   # somebody: MISSING
   # anonymous: MISSING

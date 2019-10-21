@@ -18,12 +18,18 @@ Trial run for importing the nublado.org Trac tickets as GitHub issues.
 There are several projects that do all or some of this semi-automatically
 
   * tracboat – this is designed for migrating to gitlab, but the first part (getting the data from Trac) is the same, and it is perhaps more full-featured than the github-specific projects
-  * migrate-trac-issues-to-github – There are lots of versions of this
+  * migrate-trac-issues-to-github (use MTITG for short) – There are lots of versions of this
       * The most developed one seems to be [behrisch/migrate-trac-issues-to-github](https://github.com/behrisch/migrate-trac-issues-to-github) (last updated Dec 2017)
       * But there are some others that may have useful tweaks see [network graph](https://github.com/behrisch/migrate-trac-issues-to-github/network)
 
 ## Summary of history ##
-
+  * 2019-10-16: Initial experiments with tracboat
+  * 2019-10-19: Got tracboat to work for dumping all issues to JSON, including attachments. This is a proof of concept that stage 1 can be done. But tracboat is no help with stage 2
+  * 2019-10-19: Start looking at MTITG - port to Python 3
+  * 2019-10-20: Initial test run of MTITG to import the first 10 issues from Trac. This works, except for the attachments.
+  * 2019-10-21: Make a dedicated github account @cloudy-bot to do the migration work, so that my name is not written over everything
+  * 2019-10-21: Discover that creating new milestones is not working (first 10 issues had no milestones). Fix that
+  * 2019-10-21: Another test run, but from the @cloudy-bot account, importing up to issue #100 from Trac. This now includes some that are still open. Improved treatment of trac users without github accounts. **Remaining tasks:** improve tags and bring over attachments.  
   
 ## Log of testing tracboat ##
 
@@ -203,6 +209,8 @@ There are several projects that do all or some of this semi-automatically
   * It looks like all the assignees will get notifications about their Issues when they are imported to GitHub, so I have made a separate config file `map-all-to-will.yaml` that maps all the Trac users to me (will-henney). I will use this during the testing stages, and then swap in the real mapping for the final migration. 
       * *Update*: Now that I have checked more carefully, it seems that there are no notifications, which is good
       * It is using the "new" issue import API, described at <https://gist.github.com/jonmagic/5282384165e0f86ef105>
+      * On the other hand, although each issue and comment is annotated with the name of who wrote it, they all appear to have been created with the account that did the migration (currently me)
+      * So, maybe it would be better to make a separate github account called `cloudy-migration-bot` or similar. 
 
 ### Stage 2 – create issues on github ###
   * This is handled by `Migrator.migrate_tickets()`
@@ -259,3 +267,33 @@ There are several projects that do all or some of this semi-automatically
     ```
   * That seemed to work, so I ran it without the `--dry-run`. This has put the first 10 tickets into the repo. Most of them were opened by Ryan. Note that we still do not have the attachments. That is what I will try and fix next. 
 
+### Stage 2b - dealing with milestones ###
+  * The first 10 issues did not have any milestones, but the next 10 do
+  * This causes an error:
+	```
+    Adding milestone {'due': 0, 'completed': 0, 'description': 'This is the default milestone. It is appropriate for mainly for enhancements that are not time critical.', 'name': 'no milestone'}
+    Exception: 'int' object has no attribute 'timetuple'
+    > /Users/will/Dropbox/cloudy-github-migration/migrate-trac-issues-to-github/migrate.py(170)get_gh_milestone()
+	```
+	Problem is that there was no Due date. In fact, looking at the JSON dump, none of the milestones have a Due date, although some do have a Completed date. 
+  * Now fixed - turns out the code wasn't even using the due date
+  
+### Stage 2c – dealing with trac users without github accounts ###
+
+  * Some Trac users are the same as unrelated github accounts, so I had to do mapping of those.  I am using `username` -> `username-noaccount`. Since these usernames do not actually exist on Github, this caused all sorts of problems, which I fixed by brute force with a bunch of try-excepts. As a result the issues will be peppered with a bunch of "@username-noaccount" tags that do not resolve to users, but never mind.
+
+
+### TODO Stage 2d – making the tags more useful ###
+
+  * Tags in github issues are used for lots of different Trac concepts: component, priority, keywords
+  * It might be better if we gave single-letter prefixes to these, for instance:
+      * `c:ionization-convergence`
+      * `p:minor`
+      * No prefix for keywords
+  * There are some examples in the sample YAML config, but these were done by hand
+  
+  
+###  TODO Stage 2e - importing the attachments ###
+  * We should be able to do this as though they were comments
+  * Github only allows file extensions of `.txt` plus various image and office formats
+  * So we will have to add another `.txt` extension to `.in` and patch files 
