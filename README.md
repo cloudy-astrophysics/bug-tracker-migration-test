@@ -118,7 +118,7 @@ There are several projects that do all or some of this semi-automatically
     list(get_all_tickets())
     ```
     This works, but it doesn't get the attachments:
-    ```
+    ```js
     [[430,
       <DateTime '20191008T12:10:38' at 0x10a3aba90>,
       <DateTime '20191008T12:10:38' at 0x10a3ab6d8>,
@@ -168,7 +168,7 @@ There are several projects that do all or some of this semi-automatically
       comments = m.get_trac_comments(111)
       ```
       yields
-      ```
+      ```js
       {'20091117T22:51:41': ['@rjrw changed description from:\n\n> The following model fails on trunk r3594 after failing to find an initial solution.  We appear to be at a temperature instability, and a very slightly less dense model (13.5575) finishes fine.  This model produces negative ion population errors in NI (and eventually all stages of nitrogen) but these are most likely unrelated to the root problems. \n> \n> blackbody 1.16e7\n> \n> luminosity 37\n> \n> radius 10.48\n> \n> hden 13.5578\n> \n> stop zone 1\n> \n> \n> \n\nto:\n\n> The following model fails on trunk r3594 after failing to find an initial solution.  We appear to be at a temperature instability, and a very slightly less dense model (13.5575) finishes fine.  This model produces negative ion population errors in NI (and eventually all stages of nitrogen) but these are most likely unrelated to the root problems. \n> \n> ```\n> blackbody 1.16e7\n> luminosity 37\n> radius 10.48\n> hden 13.5578\n> stop zone 1\n> ```\n> \n> \n\n'],
        '20091119T08:35:05': ['@rjrw changed attachment from "" to "conv_change"',
         '@rjrw commented:\n\n> Updated patch to deal with underflow problems on 64bit\n\n'],
@@ -293,21 +293,21 @@ There are several projects that do all or some of this semi-automatically
       * `p:minor`
       * No prefix for keywords
   * There are some examples in the sample YAML config, but these were done by hand
-  * I have now mainly done this. I wrote a script [extract-tag.py](utils/extract-tag.py) that writes a YAML file of all the labels after removing spaces and commas and the like, then pasted it into the config file and did a bit of hand-editing. Here is a sample mapping from trac "types" to github "labels":
+  * I have now mainly done this. I wrote a script [utils/extract-tags.py](utils/extract-tags.py) that writes a YAML file of all the labels after removing spaces and commas and the like, then pasted it into the config file and did a bit of hand-editing. Here is a sample mapping from trac "types" to github "labels":
 	```yaml
-	type:
-	  '#color':			  '0366d6'
-	  defect: t:defect
-	  defect - (web) documentation: t:defect:(web)-documentation
-	  defect - FPE: t:defect:FPE
-	  defect - code aborts: t:defect:code-aborts
-	  defect - convergence: t:defect:convergence
-	  defect - etc: t:defect:etc
-	  defect - failed assert: t:defect:failed-assert
-	  defect - wrong answer: t:defect:wrong-answer
-	  enhancement: t:enhancement
-	  physics: t:physics
-	  task: t:task
+    type:
+      '#color':           '0366d6'
+      defect: t:defect
+      defect - (web) documentation: t:defect:(web)-documentation
+      defect - FPE: t:defect:FPE
+      defect - code aborts: t:defect:code-aborts
+      defect - convergence: t:defect:convergence
+      defect - etc: t:defect:etc
+      defect - failed assert: t:defect:failed-assert
+      defect - wrong answer: t:defect:wrong-answer
+      enhancement: t:enhancement
+      physics: t:physics
+      task: t:task
 	```
 	There are similar mappings for components, priorities, etc.
   * It still isn't perfect, but it will do for now.  Keywords are a bit all over the place. Some of them I have mapped to components. 
@@ -318,3 +318,22 @@ There are several projects that do all or some of this semi-automatically
   * We should be able to do this as though they were comments
   * Github only allows file extensions of `.txt` plus various image and office formats
   * So we will have to add another `.txt` extension to `.in` and patch files 
+  * To check what kind attachments are present, I wrote [utils/extract-attachments.py](utils/extract-attachments.py) to list the suffixes: 
+	```
+    pat:bug-tracker-migration-test will$ python utils/extract-attachments.py data/nublado-trac-export.json 
+    {'', '.JPG', '.c', '.cpp', '.dat', '.diff', '.dr', '.gz', '.in', '.ini', '.inp',
+     '.jpg', '.old', '.out', '.patch', '.pdf', '.png', '.rfi', '.szd', '.tgz',
+     '.txt', '.vlg', '.xz', '.zip'}
+	```
+  * So we can divide them into 3 groups:
+      1. Natively supported by github: .jpg, .png, .pdf, .txt, .zip, .gz (see [Github help docs](https://help.github.com/en/github/managing-your-work-on-github/file-attachments-on-issues-and-pull-requests))
+      2. Can be treated as .gz file: .tgz
+      3. Anything else can be treated as .txt file: .c, .cpp, .dat, .diff, .dr, .in, .ini, .inp, .old, .out, .patch, .rfi, .szd, .vlg, .xz
+  * After reading all the API docs and perusing stackoverflow, it seems that there is no way to add *real* attachments using the API – however, there is a workaround:
+      * Just add a link to the body of the issue to a file that is hosted elsewhere
+      * Best place to host it would be in a repo dedicated to this purpose in @cloudy-bot's account, or just in the cloudy-astrophysics organization
+          * [cloudy-astrophysics/trac-legacy-attachments](https://github.com/cloudy-astrophysics/trac-legacy-attachments)
+      * So this nicely decouples the problem into a few steps
+          1. For each ticket, get the attachments from Trac
+          2. Save the actual files to the `trac-legacy-attachments` repo (organize in folders by ticket)
+          3. Add a link to the ticket when we import it into issues
