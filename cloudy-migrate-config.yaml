@@ -22,3 +22,162 @@ users:
   # anonymous: MISSING
   
   
+# Pasted in from tag-translations.yaml 21 Oct 2019 but then edited
+labels:
+  component:
+    '#color':                     '6f42c1'
+    H chemistry (deprecated): c:H-chemistry-(deprecated)
+    Hazy: c:Hazy
+    atomic/molecular data base: c:atomic/molecular-data-base
+    chemical network: c:chemical-network
+    component1: c:component1
+    convergence (generic): c:convergence-(generic)
+    documentation: c:documentation
+    dynamics: c:dynamics
+    etc: c:etc
+    fault - segfault, fpe, etc: c:fault:segfault-fpe-etc
+    grains: c:grains
+    infrastructure: c:infrastructure
+    initialization: c:initialization
+    input parser: c:input-parser
+    ionization convergence: c:ionization-convergence
+    literature: c:literature
+    maintenance: c:maintenance
+    optimizer: c:optimizer
+    output: c:output
+    parallel: c:parallel
+    pressure convergence: c:pressure-convergence
+    radiative transfer: c:radiative-transfer
+    thermal convergence: c:thermal-convergence
+    website: c:website
+  keywords:
+    '#color':                     '6f42c1'
+    21 cm Lya maser:
+    - '21-cm'
+    - Lya
+    - maser
+    F forbidden lines: forbidden-lines
+    FIR energy leak: FIR-energy-leak
+    H chem NaN:
+    - H-chem
+    - NaN
+    'H&S Case A H recombination emission':
+    - H-and-S-Case-A
+    - H-recombination-emission
+    Helium, lines, triplet:
+    - Helium-lines
+    - triplet
+    LTE, ionization:
+    - LTE
+    - ionization
+    Mie code: Mie-code
+    O H charge exchange: O-H-charge-exchange
+    UMIST update: UMIST-update
+    advection: advection
+    assert: assert
+    bistable: bistable
+    chemistry solver bonkers:
+    - chemistry-solver
+    - bonkers
+    clang++:
+    - clang++
+    continuum resolution: continuum-resolution
+    convergence failure: convergence-failure
+    convergence failures: convergence-failure
+    cosmic ray attenuation: cosmic-ray-attenuation
+    cosmic rays, line emission:
+    - cosmic-rays
+    - line-emission
+    damping constant satellite lines:
+    - damping-constant
+    - satellite-lines
+    diffuse field pumping:
+    - diffuse-field
+    - pumping
+    double counted info lines: double-counted-info-lines
+    dr: dr
+    dynamics: dynamics
+    dynamics, H2:
+    - dynamics
+    - H2
+    energy conservation: energy-conservation
+    excited state photoionization n-level solvers:
+    - excited-state-photoionization
+    - n-level-solvers
+    fine opacity: fine-opacity
+    grain heating convergence:
+    - grain-heating
+    - convergence
+    grains PAH qheat:
+    - c:grains
+    - PAH
+    - qheat
+    hazy:
+    - c:Hazy
+    hazy index:
+    - c:Hazy
+    - index
+    hydrogen h-like:
+    - hydrogen
+    - h-like
+    infrastructure io dynamics iterate:
+    - c:infrastructure
+    - c:io
+    - c:dynamics
+    - iterate
+    initial solver:
+    - initial-solver
+    iso solvers, ionizaiton balance:
+    - c:iso-solvers
+    - c:ionization-balance
+    iso-sequences:
+    - iso-sequences
+    llvm os x:
+    - llvm
+    - macos
+    - osx
+    memory leak:
+    - memory-leak
+    microsoft visual studio:
+    - microsoft-visual-studio
+    mpi:
+    - mpi
+    ots damper:
+    - ots
+    - damper
+    print line optical depths:
+    - print-line-optical-depths
+    stars atmospheres:
+    - stars
+    - atmospheres
+  priority:
+    '#color':           'add8e6'
+    blocker: p:blocker
+    critical: p:critical
+    good to do: p:good-to-do
+    major: p:major
+    minor: p:minor
+    trivial: p:trivial
+  type:
+    '#color':           '0366d6'
+    defect: t:defect
+    defect - (web) documentation: t:defect:(web)-documentation
+    defect - FPE: t:defect:FPE
+    defect - code aborts: t:defect:code-aborts
+    defect - convergence: t:defect:convergence
+    defect - etc: t:defect:etc
+    defect - failed assert: t:defect:failed-assert
+    defect - wrong answer: t:defect:wrong-answer
+    enhancement: t:enhancement
+    physics: t:physics
+    task: t:task
+  owner:
+    '#color':           'c0c0c0'
+    Ryan: o:Ryan-Porter
+    Ryan Porter: o:Ryan-Porter
+    gary: o:Gary-Ferland
+    nobody: o:nobody
+    peter: o:Peter-van-Hoof
+    rjrw: o:Robin-Williams
+    rporter: o:Ryan-Porter
+    somebody: o:somebody

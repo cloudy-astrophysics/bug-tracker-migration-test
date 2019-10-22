@@ -23,13 +23,15 @@ There are several projects that do all or some of this semi-automatically
       * But there are some others that may have useful tweaks see [network graph](https://github.com/behrisch/migrate-trac-issues-to-github/network)
 
 ## Summary of history ##
-  * 2019-10-16: Initial experiments with tracboat
-  * 2019-10-19: Got tracboat to work for dumping all issues to JSON, including attachments. This is a proof of concept that stage 1 can be done. But tracboat is no help with stage 2
-  * 2019-10-19: Start looking at MTITG - port to Python 3
-  * 2019-10-20: Initial test run of MTITG to import the first 10 issues from Trac. This works, except for the attachments.
-  * 2019-10-21: Make a dedicated github account @cloudy-bot to do the migration work, so that my name is not written over everything
-  * 2019-10-21: Discover that creating new milestones is not working (first 10 issues had no milestones). Fix that
-  * 2019-10-21: Another test run, but from the @cloudy-bot account, importing up to issue #100 from Trac. This now includes some that are still open. Improved treatment of trac users without github accounts. **Remaining tasks:** improve tags and bring over attachments.  
+  * **2019-10-16:** Initial experiments with tracboat
+  * **2019-10-19:** Got tracboat to work for dumping all issues to JSON, including attachments. This is a proof of concept that stage 1 can be done. But tracboat is no help with stage 2
+  * **2019-10-19:** Start looking at MTITG - port to Python 3
+  * **2019-10-20:** Initial test run of MTITG to import the first 10 issues from Trac. This works, except for the attachments.
+  * **2019-10-21 morning:** Make a dedicated github account @cloudy-bot to do the migration work, so that my name is not written over everything
+  * **2019-10-21 morning:** Discover that creating new milestones is not working (first 10 issues had no milestones). Fix that
+  * **2019-10-21 morning:** Another test run, but from the @cloudy-bot account, importing up to issue #100 from Trac. This now includes some that are still open. Improved treatment of trac users without github accounts. 
+  * **2019-10-21 evening:** Fix most of the problems with tags
+  * **Remaining tasks:** Bring over attachments.
   
 ## Log of testing tracboat ##
 
@@ -283,7 +285,7 @@ There are several projects that do all or some of this semi-automatically
   * Some Trac users are the same as unrelated github accounts, so I had to do mapping of those.  I am using `username` -> `username-noaccount`. Since these usernames do not actually exist on Github, this caused all sorts of problems, which I fixed by brute force with a bunch of try-excepts. As a result the issues will be peppered with a bunch of "@username-noaccount" tags that do not resolve to users, but never mind.
 
 
-### TODO Stage 2d – making the tags more useful ###
+### Stage 2d – making the tags more useful ###
 
   * Tags in github issues are used for lots of different Trac concepts: component, priority, keywords
   * It might be better if we gave single-letter prefixes to these, for instance:
@@ -291,7 +293,25 @@ There are several projects that do all or some of this semi-automatically
       * `p:minor`
       * No prefix for keywords
   * There are some examples in the sample YAML config, but these were done by hand
-  
+  * I have now mainly done this. I wrote a script <utils/extract-tag.py> that writes a YAML file of all the labels after removing spaces and commas and the like, then pasted it into the config file and did a bit of hand-editing. Here is a sample:
+	```yaml
+	type:
+	  '#color':			  '0366d6'
+	  defect: t:defect
+	  defect - (web) documentation: t:defect:(web)-documentation
+	  defect - FPE: t:defect:FPE
+	  defect - code aborts: t:defect:code-aborts
+	  defect - convergence: t:defect:convergence
+	  defect - etc: t:defect:etc
+	  defect - failed assert: t:defect:failed-assert
+	  defect - wrong answer: t:defect:wrong-answer
+	  enhancement: t:enhancement
+	  physics: t:physics
+	  task: t:task
+	```
+  * It still isn't perfect, but it will do for now. 
+  * Also added some colors, but not all have shown up. 
+  * Tested on tickets 101 to 140
   
 ###  TODO Stage 2e - importing the attachments ###
   * We should be able to do this as though they were comments
