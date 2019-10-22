@@ -293,7 +293,7 @@ There are several projects that do all or some of this semi-automatically
       * `p:minor`
       * No prefix for keywords
   * There are some examples in the sample YAML config, but these were done by hand
-  * I have now mainly done this. I wrote a script <utils/extract-tag.py> that writes a YAML file of all the labels after removing spaces and commas and the like, then pasted it into the config file and did a bit of hand-editing. Here is a sample:
+  * I have now mainly done this. I wrote a script [extract-tag.py](utils/extract-tag.py) that writes a YAML file of all the labels after removing spaces and commas and the like, then pasted it into the config file and did a bit of hand-editing. Here is a sample mapping from trac "types" to github "labels":
 	```yaml
 	type:
 	  '#color':			  '0366d6'
@@ -309,7 +309,8 @@ There are several projects that do all or some of this semi-automatically
 	  physics: t:physics
 	  task: t:task
 	```
-  * It still isn't perfect, but it will do for now. 
+	There are similar mappings for components, priorities, etc.
+  * It still isn't perfect, but it will do for now.  Keywords are a bit all over the place. Some of them I have mapped to components. 
   * Also added some colors, but not all have shown up. 
   * Tested on tickets 101 to 140
   
