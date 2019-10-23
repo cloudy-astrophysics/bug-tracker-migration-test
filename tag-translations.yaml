@@ -205,6 +205,12 @@ labels:
     major: p:major
     minor: p:minor
     trivial: p:trivial
+  resolution:
+    duplicate: duplicate
+    fixed: fixed
+    invalid: invalid
+    wontfix: wontfix
+    worksforme: worksforme
   type:
     defect: t:defect
     defect - (web) documentation: t:defect---(web)-documentation
@@ -217,3 +223,15 @@ labels:
     enhancement: t:enhancement
     physics: t:physics
     task: t:task
+  version:
+    ? ''
+    : 'v:'
+    c07.02: v:c07.02
+    c08.00: v:c08.00
+    c10.00: v:c10.00
+    c17.00: v:c17.00
+    c17.01: v:c17.01
+    c17_branch: v:c17_branch
+    newmole: v:newmole
+    stout: v:stout
+    trunk: v:trunk

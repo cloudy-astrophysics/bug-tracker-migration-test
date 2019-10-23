@@ -16,7 +16,9 @@ tag_types = [
     ["component", "c:"],
     ["priority", "p:"],
     ["type", "t:"], 
-    ["owner", "o:"], 
+    ["owner", "o:"],
+    ["version", "v:"],
+    ["resolution", "r:"],
 ]
 # Convert space to hyphen and drop punctuation
 fixer = str.maketrans(" ", "-", ",;:")

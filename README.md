@@ -336,4 +336,6 @@ There are several projects that do all or some of this semi-automatically
       * So this nicely decouples the problem into a few steps
           1. For each ticket, get the attachments from Trac
           2. Save the actual files to the `trac-legacy-attachments` repo (organize in folders by ticket)
+              * We can have the program write the files to a local directory, and then commit and push the changes to github by hand
           3. Add a link to the ticket when we import it into issues
+      * The first two steps are now done in a new function `get_trac_attachments`, but I haven't tested it properly yet
