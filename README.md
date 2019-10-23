@@ -31,7 +31,7 @@ There are several projects that do all or some of this semi-automatically
   * **2019-10-21 morning:** Discover that creating new milestones is not working (first 10 issues had no milestones). Fix that
   * **2019-10-21 morning:** Another test run, but from the @cloudy-bot account, importing up to issue #100 from Trac. This now includes some that are still open. Improved treatment of trac users without github accounts. 
   * **2019-10-21 evening:** Fix most of the problems with tags
-  * **Remaining tasks:** Bring over attachments.
+  * **2019-10-23:** Finished dealing with bringing in the attachments. Strategy is to add attachments as links. The files themselves are hosted in a separate dedicated repository, but this is transparent to the end user. The links in the issues are to the raw file.   
   
 ## Log of testing tracboat ##
 
@@ -283,6 +283,7 @@ There are several projects that do all or some of this semi-automatically
 ### Stage 2c – dealing with trac users without github accounts ###
 
   * Some Trac users are the same as unrelated github accounts, so I had to do mapping of those.  I am using `username` -> `username-noaccount`. Since these usernames do not actually exist on Github, this caused all sorts of problems, which I fixed by brute force with a bunch of try-excepts. As a result the issues will be peppered with a bunch of "@username-noaccount" tags that do not resolve to users, but never mind.
+  * Note that I am not creating any "assignees" at all, since Gary says that feature is not used
 
 
 ### Stage 2d – making the tags more useful ###
@@ -314,10 +315,8 @@ There are several projects that do all or some of this semi-automatically
   * Also added some colors, but not all have shown up. 
   * Tested on tickets 101 to 140
   
-###  TODO Stage 2e - importing the attachments ###
+###  Stage 2e - importing the legacy attachments ###
   * We should be able to do this as though they were comments
-  * Github only allows file extensions of `.txt` plus various image and office formats
-  * So we will have to add another `.txt` extension to `.in` and patch files 
   * To check what kind attachments are present, I wrote [utils/extract-attachments.py](utils/extract-attachments.py) to list the suffixes: 
 	```
     pat:bug-tracker-migration-test will$ python utils/extract-attachments.py data/nublado-trac-export.json 
@@ -325,10 +324,6 @@ There are several projects that do all or some of this semi-automatically
      '.jpg', '.old', '.out', '.patch', '.pdf', '.png', '.rfi', '.szd', '.tgz',
      '.txt', '.vlg', '.xz', '.zip'}
 	```
-  * So we can divide them into 3 groups:
-      1. Natively supported by github: .jpg, .png, .pdf, .txt, .zip, .gz (see [Github help docs](https://help.github.com/en/github/managing-your-work-on-github/file-attachments-on-issues-and-pull-requests))
-      2. Can be treated as .gz file: .tgz
-      3. Anything else can be treated as .txt file: .c, .cpp, .dat, .diff, .dr, .in, .ini, .inp, .old, .out, .patch, .rfi, .szd, .vlg, .xz
   * After reading all the API docs and perusing stackoverflow, it seems that there is no way to add *real* attachments using the API – however, there is a workaround:
       * Just add a link to the body of the issue to a file that is hosted elsewhere
       * Best place to host it would be in a repo dedicated to this purpose in @cloudy-bot's account, or just in the cloudy-astrophysics organization
@@ -338,4 +333,7 @@ There are several projects that do all or some of this semi-automatically
           2. Save the actual files to the `trac-legacy-attachments` repo (organize in folders by ticket)
               * We can have the program write the files to a local directory, and then commit and push the changes to github by hand
           3. Add a link to the ticket when we import it into issues
-      * The first two steps are now done in a new function `get_trac_attachments`, but I haven't tested it properly yet
+      * This is now done in a new function `get_trac_attachments_as_comments`, which is working more or less
+          * The first tests (141 to 160) had the base URL for attachments as github.com, but this means that the file gets shown in the context of the `trac-legacy-attachments`, which is not ideal. So I have now set it to raw.githubusercontent.com so the link is just to the raw file. (Although this got messed up on tickets 161 to 200, which have broken links).
+
+

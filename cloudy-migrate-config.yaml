@@ -17,9 +17,9 @@ users:
   rporter: ryan-porter-noaccount
   Ryan: ryan-porter-noaccount
   'rporter@pa.uky.edu': ryan-porter-noaccount
-  # nobody: MISSING
-  # somebody: MISSING
-  # anonymous: MISSING
+  nobody: cloudy-bot
+  somebody: cloudy-bot
+  anonymous: cloudy-bot
   
   
 # Pasted in from tag-translations.yaml 21 Oct 2019 but then edited
@@ -171,13 +171,3 @@ labels:
     enhancement: t:enhancement
     physics: t:physics
     task: t:task
-  owner:
-    '#color':           'c0c0c0'
-    Ryan: o:Ryan-Porter
-    Ryan Porter: o:Ryan-Porter
-    gary: o:Gary-Ferland
-    nobody: o:nobody
-    peter: o:Peter-van-Hoof
-    rjrw: o:Robin-Williams
-    rporter: o:Ryan-Porter
-    somebody: o:somebody
